@@ -1,3 +1,4 @@
+
 package se.yrgo.libraryapp.validators;
 
 import java.io.BufferedReader;
@@ -7,7 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,9 @@ public final class RealName {
         try (InputStream is = RealName.class.getClassLoader().getResourceAsStream("bad_words.txt");
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            while (reader.readLine() != null) {
-                invalidWords.addAll(reader.lines().collect(Collectors.toSet()));
+            String word;
+            while ((word = reader.readLine()) != null) {
+                invalidWords.add(word);
             }
         } catch (IOException ex) {
             logger.error("Unable to initialize list of bad words", ex);
@@ -35,15 +37,15 @@ public final class RealName {
 
     /**
      * Validates if the given name is a valid and proper name.
-     * 
+     *
      * @param name the name to check
      * @return true if valid, false if not
-     * 
+     *
      */
     public static boolean validate(String name) {
         String cleanName = Utils.cleanAndUnLeet(name);
         String[] words = cleanName.split("\\W+");
-        for (int i = 1; i < words.length; i++) {
+        for (int i = 0; i < words.length; i++) {
             if (invalidWords.contains(words[i])) {
                 return false;
             }
