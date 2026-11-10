@@ -1,6 +1,8 @@
+
 package se.yrgo.libraryapp;
 
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
+
 import io.jooby.AccessLogHandler;
 import io.jooby.CorsHandler;
 import io.jooby.GracefulShutdown;
@@ -13,21 +15,25 @@ import io.jooby.json.JacksonModule;
 import io.jooby.pac4j.Pac4jModule;
 import io.jooby.pac4j.Pac4jOptions;
 import se.yrgo.libraryapp.auth.DbCookieClient;
-import se.yrgo.libraryapp.controllers.*;
 import se.yrgo.libraryapp.controllers.BookController;
-import se.yrgo.libraryapp.controllers.admin.*;
+import se.yrgo.libraryapp.controllers.ClassificationController;
+import se.yrgo.libraryapp.controllers.LoginController;
+import se.yrgo.libraryapp.controllers.LogoutController;
+import se.yrgo.libraryapp.controllers.RegisterUserController;
+import se.yrgo.libraryapp.controllers.admin.LoanController;
+import se.yrgo.libraryapp.controllers.admin.UserController;
 import se.yrgo.libraryapp.entities.Role;
 
 /**
  * This is a Jooby application, an alternative to Spring, kind of.
- * 
+ *
  * Don't be afraid to read more about how Jooby works at https://jooby.io/
- * 
+ *
  */
 public class App extends Jooby {
   public App() {
     install(new GracefulShutdown());
-    install(new GuiceModule()); // dependency injection
+    install(new GuiceModule(new AppModule())); // dependency injection
     install(new HikariModule()); // database connections
     install(new FlywayModule()); // schema migration
     install(new JacksonModule()); // json (de)serialization

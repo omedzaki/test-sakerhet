@@ -1,3 +1,4 @@
+
 package se.yrgo.libraryapp.dao;
 
 import java.sql.Connection;
@@ -6,13 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
-import se.yrgo.libraryapp.entities.*;
+import se.yrgo.libraryapp.entities.LoginInfo;
+import se.yrgo.libraryapp.entities.User;
+import se.yrgo.libraryapp.entities.UserId;
 
 public class UserDao {
     private static Logger logger = LoggerFactory.getLogger(UserDao.class);
@@ -58,11 +62,9 @@ public class UserDao {
         return Optional.empty();
     }
 
-    public boolean register(String name, String realname, String password) {
-        Argon2PasswordEncoder encoder = new Argon2PasswordEncoder();
-        String passwordHash = encoder.encode(password);
-
-        // handle names like Ian O'Toole
+    public boolean register(String name, String realname, String passwordHash) {
+        // Password hashing is handled by UserService.
+        // Handle names like Ian O'Toole.
         realname = realname.replace("'", "\\'");
 
         try (Connection conn = ds.getConnection()) {
