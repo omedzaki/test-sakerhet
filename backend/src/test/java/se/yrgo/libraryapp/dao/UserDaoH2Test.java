@@ -4,24 +4,23 @@ package se.yrgo.libraryapp.dao;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
-import org.h2.jdbcx.JdbcDataSource;
-import org.junit.jupiter.api.Test;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.h2.jdbcx.JdbcDataSource;
+import org.junit.jupiter.api.Test;
 
 public class UserDaoH2Test {
 
     @Test
     void registerUserWithH2() throws Exception {
 
-        // Skapa en databas i minnet
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:userdao_test;DB_CLOSE_DELAY=-1");
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1");
         ds.setUser("sa");
         ds.setPassword("");
 
-        // Skapa tabellerna som testet behöver
+        // Create the tables needed for the test
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {
 
@@ -54,32 +53,36 @@ public class UserDaoH2Test {
             );
         }
 
-        // Registrera en användare
         UserDao dao = new UserDao(ds);
 
         boolean result = dao.register(
             "bosse",
             "Bosse Andersson",
-            "password123"
+            "hashedPassword123"
         );
 
         assertThat(result).isTrue();
 
-        // Kontrollera att användaren sparades
+        // Check the saved user and role
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
-                 "SELECT u.user, u.realname, ur.role_id " +
+                 "SELECT u.user, u.realname, " +
+                 "u.password_hash, ur.role_id " +
                  "FROM user u " +
                  "JOIN user_role ur ON u.id = ur.user_id " +
                  "WHERE u.user = 'bosse'"
              )) {
 
             assertThat(rs.next()).isTrue();
-            assertThat(rs.getString("user")).isEqualTo("bosse");
+            assertThat(rs.getString("user"))
+                .isEqualTo("bosse");
             assertThat(rs.getString("realname"))
                 .isEqualTo("Bosse Andersson");
-            assertThat(rs.getInt("role_id")).isEqualTo(2);
+            assertThat(rs.getString("password_hash"))
+                .isEqualTo("hashedPassword123");
+            assertThat(rs.getInt("role_id"))
+                .isEqualTo(2);
         }
     }
 }
